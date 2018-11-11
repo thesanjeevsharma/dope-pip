@@ -56,7 +56,7 @@ class Dopepip:
 
         ttk.Label(self.download_frame, text = 'Install new packages').grid(row = 0, column = 0, sticky = 'w')
         
-        self.download_entry = ttk.Entry(self.download_frame, width = 30, font = ('Arial', 8))
+        self.download_entry = ttk.Entry(self.download_frame, width = 35, font = ('Arial', 12))
         self.download_entry.grid(row = 1, column = 0, padx = 5)
         ttk.Button(self.download_frame, text = 'Install', command = self.install).grid(row = 1, column = 1, padx = 5)
         
@@ -88,17 +88,15 @@ class Dopepip:
         self.logs['state'] = 'disabled'
 
     def checkApps(self):
-        startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        installed_result = subprocess.run(['pip','list'], stdout = subprocess.PIPE,startupinfo=startupinfo).stdout.decode().split('\n')[2:-1]
-        print(installed_result)
-        outdated_result = subprocess.run(['pip','list','--outdated'], stdout = subprocess.PIPE,startupinfo=startupinfo).stdout.decode().split('\n')[2:-1]
+        installed_result = subprocess.run(['pip','list','--no-cache-dir'], stdout = subprocess.PIPE).stdout.decode().split('\n')[2:-1]
+        #print(installed_result)
+        outdated_result = subprocess.run(['pip','list','--no-cache-dir','--outdated'], stdout = subprocess.PIPE).stdout.decode().split('\n')[2:-1]
         self.outdated_apps = []
         for i in range(len(outdated_result)):
             self.outdated_apps.append(outdated_result[i].split(' ')[0])
         for i in range(len(installed_result)):
             package = installed_result[i].split(' ')
-            print(package[0])
+            #print(package[0])
             if (package[0] in self.outdated_apps):
                 self.tree.insert('', 'end', str(package[0]), text = str(package[0]), image = self.notok)
             else:
@@ -113,10 +111,8 @@ class Dopepip:
         if 'yes':
             self.writeToLog('Removing ' + app + '! Wait.')
             try:
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                removed_result = subprocess.run(['pip','uninstall',app,'-y'], stdout = subprocess.PIPE,startupinfo=startupinfo).stdout.decode()
-                print(removed_result)
+                removed_result = subprocess.run(['pip','uninstall',app,'-y'], stdout = subprocess.PIPE).stdout.decode()
+                #print(removed_result)
                 self.writeToLog('Succesfully uninstalled ' + app + '.')
                 self.tree.delete(app)
             except:
@@ -129,10 +125,8 @@ class Dopepip:
         app = str(self.tree.focus())
         self.writeToLog('Upgrading ' + app + '! Wait.')
         try:
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            upgrade_result = subprocess.run(['pip','install',app,'-U'], stdout = subprocess.PIPE,startupinfo=startupinfo).stdout.decode()
-            print(upgrade_result)
+            upgrade_result = subprocess.run(['pip','install',app,'-U'], stdout = subprocess.PIPE).stdout.decode()
+            #print(upgrade_result)
             self.writeToLog('Succesfully upgraded ' + app + '.')
             index = self.tree.index(app)
             self.tree.delete(app)
@@ -150,10 +144,8 @@ class Dopepip:
         for app in self.outdated_apps:
             self.writeToLog('Upgrading ' + app + '! Wait.')
         try:
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            upgrade_result = subprocess.run(['pip','install',app,'-U'], stdout = subprocess.PIPE,startupinfo=startupinfo).stdout.decode()
-            print(upgrade_result)
+            upgrade_result = subprocess.run(['pip','install',app,'-U'], stdout = subprocess.PIPE).stdout.decode()
+            #print(upgrade_result)
             self.writeToLog('Succesfully upgraded ' + app + '.')
             index = self.tree.index(app)
             self.tree.delete(app)
@@ -171,10 +163,8 @@ class Dopepip:
         app = self.download_entry.get()
         self.writeToLog('Trying to download ' + app + '.')
         try:
-            startupinfo = subprocess.STARTUPINFO()
-            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-            download_result = subprocess.run(['pip','install',app,], stdout = subprocess.PIPE,startupinfo=startupinfo).stdout.decode()
-            print(download_result)
+            download_result = subprocess.run(['pip','install',app,], stdout = subprocess.PIPE).stdout.decode()
+            #print(download_result)
             self.writeToLog('Successfully downloaded ' + app + '.')
             self.download_entry.delete(0, END)
             self.tree.insert('', 'end', app, text = app, image = self.ok)
